@@ -17,28 +17,38 @@ const (
 
 var (
 	filename = kingpin.Flag("file", "File to parse").Short('f').Required().String()
+	shift    = kingpin.Command("shift", "Shift time")
+	shiftTo  = shift.Arg("to", "24 hour Time to start at").Required().String()
 )
 
 func main() {
-	kingpin.Parse()
+	command := kingpin.Parse()
 
 	xmlString, err := ioutil.ReadFile(*filename)
 	if err != nil {
-		log.Fatalf("Cannot read open %s: %s", filename, err)
+		log.Fatalf("Cannot read open %s: %s", *filename, err)
 	}
 
-	doc := profile.Profile{}
-	err = xml.Unmarshal(xmlString, &doc)
+	p := profile.Profile{}
+	err = xml.Unmarshal(xmlString, &p)
 	if err != nil {
 		log.Fatal("Cannot convert xml: ", err)
 	}
 
-	err = doc.UpdateChecksum()
+	switch command {
+	case "shift":
+		err := p.Shift(*shiftTo)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	err = p.UpdateChecksum()
 	if err != nil {
 		log.Fatal("Error generating checksum: ", err)
 	}
 
-	xmlOut, err := xml.MarshalIndent(doc, "", "\t")
+	xmlOut, err := xml.MarshalIndent(p, "", "\t")
 	if err != nil {
 		log.Fatal("Cannot convert json back into xml: ", err)
 	}
