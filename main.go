@@ -53,6 +53,6 @@ func main() {
 		log.Fatal("Cannot convert json back into xml: ", err)
 	}
 
-	fmt.Printf("%s\n%s\n", xmlHeader, xmlOut)
+	fmt.Printf("%s%s\n", xmlHeader, xmlOut)
 
 }
